@@ -1,0 +1,118 @@
+{
+  "noise-1": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8327462077140808,
+      "ipr_SSIM_v": 0.6595131754875183
+    }
+  },
+  "noise-3": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8328153491020203,
+      "ipr_SSIM_v": 0.6600666046142578
+    }
+  },
+  "noise-6": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8322702646255493,
+      "ipr_SSIM_v": 0.6614445447921753
+    }
+  },
+  "noise-9": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8303847312927246,
+      "ipr_SSIM_v": 0.6644204258918762
+    }
+  },
+  "noise-12": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8282686471939087,
+      "ipr_SSIM_v": 0.6697595119476318
+    }
+  },
+  "none-1": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8332411646842957,
+      "ipr_SSIM_v": 0.6601192951202393
+    },
+    "fid50k_full": 3.403573294924861,
+    "fid50k_full_trigger": 207.8090560038445
+  },
+  "pruning-5": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8328114748001099,
+      "ipr_SSIM_v": 0.6588620543479919
+    }
+  },
+  "pruning-15": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8315412998199463,
+      "ipr_SSIM_v": 0.6586380004882812
+    }
+  },
+  "pruning-20": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8317437171936035,
+      "ipr_SSIM_v": 0.6601598858833313
+    }
+  },
+  "pruning-25": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8350926637649536,
+      "ipr_SSIM_v": 0.6642112731933594
+    }
+  },
+  "pruning-30": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.828290581703186,
+      "ipr_SSIM_v": 0.6575438380241394
+    }
+  },
+  "pruning-35": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8290104866027832,
+      "ipr_SSIM_v": 0.6579567193984985
+    }
+  },
+  "pruning-40": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8152892589569092,
+      "ipr_SSIM_v": 0.6339052319526672
+    }
+  },
+  "pruning-45": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8137957453727722,
+      "ipr_SSIM_v": 0.6280636787414551
+    }
+  },
+  "quantization-6": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8207799792289734,
+      "ipr_SSIM_v": 0.6890201568603516
+    }
+  },
+  "quantization-7": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8358013033866882,
+      "ipr_SSIM_v": 0.6700007319450378
+    }
+  },
+  "quantization-8": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8267816305160522,
+      "ipr_SSIM_v": 0.6518105864524841
+    }
+  },
+  "quantization-9": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8360443115234375,
+      "ipr_SSIM_v": 0.6625505685806274
+    }
+  },
+  "quantization-10": {
+    "IPR_extraction": {
+      "ipr_SSIM": 0.8337656259536743,
+      "ipr_SSIM_v": 0.6603939533233643
+    }
+  }
+}

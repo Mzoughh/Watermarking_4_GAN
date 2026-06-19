@@ -1,0 +1,81 @@
+{
+  "noise-1": {
+    "TONDI_extraction": 0.8776041865348816
+  },
+  "noise-3": {
+    "TONDI_extraction": 0.7864583730697632
+  },
+  "noise-6": {
+    "TONDI_extraction": 0.7200521230697632
+  },
+  "noise-9": {
+    "TONDI_extraction": 0.6549479365348816
+  },
+  "noise-12": {
+    "TONDI_extraction": 0.6315104365348816
+  },
+  "none-1": {
+    "TONDI_extraction": 0.90625,
+    "TONDI_extraction_with_multimedia_attacks": {
+      "none": 0.903124988079071,
+      "crop_05": 0.7599999904632568,
+      "crop_01": 0.6220833659172058,
+      "rot_25": 0.5989583730697632,
+      "rot_90": 0.5660416483879089,
+      "jpeg_80": 0.5962499976158142,
+      "jpeg_50": 0.5525000095367432,
+      "brightness_1p5": 0.893958330154419,
+      "brightness_2": 0.82833331823349,
+      "contrast_1p5": 0.8960416913032532,
+      "contrast_2": 0.8962500095367432,
+      "saturation_1p5": 0.8797916769981384,
+      "saturation_2": 0.8222916722297668,
+      "sharpness_1p5": 0.9335417151451111,
+      "sharpness_2": 0.934374988079071,
+      "resize_05": 0.5564583539962769,
+      "resize_01": 0.4816666543483734,
+      "overlay_text": 0.6983333230018616,
+      "comb": 0.5554166436195374
+    },
+    "fid50k_full": 4.089360620755328
+  },
+  "pruning-5": {
+    "TONDI_extraction": 0.890625
+  },
+  "pruning-15": {
+    "TONDI_extraction": 0.6888021230697632
+  },
+  "pruning-20": {
+    "TONDI_extraction": 0.6809896230697632
+  },
+  "pruning-25": {
+    "TONDI_extraction": 0.6627604365348816
+  },
+  "pruning-30": {
+    "TONDI_extraction": 0.6653646230697632
+  },
+  "pruning-35": {
+    "TONDI_extraction": 0.6393229365348816
+  },
+  "pruning-40": {
+    "TONDI_extraction": 0.6158854365348816
+  },
+  "pruning-45": {
+    "TONDI_extraction": 0.57421875
+  },
+  "quantization-6": {
+    "TONDI_extraction": 0.5846354365348816
+  },
+  "quantization-7": {
+    "TONDI_extraction": 0.6341146230697632
+  },
+  "quantization-8": {
+    "TONDI_extraction": 0.6770833730697632
+  },
+  "quantization-9": {
+    "TONDI_extraction": 0.8424479365348816
+  },
+  "quantization-10": {
+    "TONDI_extraction": 0.8111979365348816
+  }
+}

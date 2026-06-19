@@ -45,11 +45,11 @@ rm -rf "$TORCH_EXTENSIONS_DIR"/*
 # DATASETS=('CelebA')
 
 CODEDIR="$WORK/ENV_JEAN_ZAY/StyleGAN2-ADA-4_Watermarking_VF"
-NETWORK_NAMES=('T4G' 'T4G' 'T4G')
-NETWORK_NUMBERS=('001100' '000275' '000425')
-CONFIGS=('R2D' 'ZE' 'FG')
-SIZES=('256' '128' '128')
-DATASETS=('ffhq' 'ffhq' 'CelebA')
+NETWORK_NAMES=('T4G')
+NETWORK_NUMBERS=('000275')
+CONFIGS=('ZE')
+SIZES=('128')
+DATASETS=('ffhq')
 
 cd "$CODEDIR"
 
@@ -59,14 +59,14 @@ for i in "${!NETWORK_NAMES[@]}"; do
     METRICS="${NAME}_extraction,fid50k_full,fid50k_full_trigger"
     NETWORK_W="./training_run_experiences_${SIZES[$i]}_configs_${CONFIGS[$i]}/${NAME}_${SIZES[$i]}_${SIZES[$i]}_${DATASETS[$i]}/PROD_0/network-snapshot-${NUMBER}.pkl"
 
-    echo "==== Running no attack ===="
-    python calc_metrics_after_network_attacks.py \
-        --metrics="$METRICS" \
-        --network="$NETWORK_W" \
-        --attack_name="none"
+    # echo "==== Running no attack ===="
+    # python calc_metrics_after_network_attacks.py \
+    #     --metrics="$METRICS" \
+    #     --network="$NETWORK_W" \
+    #     --attack_name="none"
 
     echo "==== Running pruning attacks ===="
-    for PERCENT in 5 15 20 25 30 35 40 45 
+    for PERCENT in  30 35 40 45 # 5 15 20 25
     do
         echo "Running pruning with $PERCENT% sparsity..."
         python calc_metrics_after_network_attacks.py \
@@ -77,7 +77,7 @@ for i in "${!NETWORK_NAMES[@]}"; do
     done
 
     # echo "==== Running quantization attacks ===="
-    # for BITS in  6 7 8 9 10 
+    # for BITS in  6 7 8 9 10
     # do
     #     echo "Running quantization with $BITS bits..."
     #     python calc_metrics_after_network_attacks.py \

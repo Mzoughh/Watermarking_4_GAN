@@ -125,93 +125,171 @@ def compute_t4G_with_multimedia_attacks(opts):
 ## CODE FOR EXTRACTION TO EVALUATE IMPACT OF P AND V 
 
 def compute_t4g_p(opts):
-    # SCRIPT TO EVALUATE INFLUENCE OF P (IN THE MASK) IN THE GENERATION
+    # SCRIPT TO EVALUATE INFLUENCE OF P POSITION IN THE MASK
 
     if opts.watermarking_dict is None:
-            print("No T4G watermarking dictionary provided, skipping extraction metrics (0 by default).")
-            
+        print("No T4G watermarking dictionary provided, skipping extraction metrics (0 by default).")
+        return 0.0, 0.0, 0.0
+
     else:
 
-        model_device =  opts.device
+        model_device = opts.device
         watermarking_dict = {
             k: (v.to(model_device) if torch.is_tensor(v) else v)
             for k, v in opts.watermarking_dict.items()
         }
-        
+
         G_mapping = opts.G.mapping.to(model_device)
         G_synthesis = opts.G.synthesis.to(model_device)
-        
-        tools = T4G_tools(model_device)  
+
+        tools = T4G_tools(model_device)
         batch_size = 16
-        
-        latent_vector = torch.randn([batch_size, opts.G.z_dim], device=model_device)
-        trigger_label= torch.zeros([batch_size, opts.G.c_dim], device=model_device)
-        
-        
+
+        trigger_label = torch.zeros([batch_size, opts.G.c_dim], device=model_device)
+
         #####################################
         #### TRIGGER VECTOR MODIFICATION ####
-        # LISTS INIT
+
         idx_list_total = []
         bit_acc_list_total = []
+        common_count_list_total = []
+
         outlayer_idx_list = []
         outlayer = 0
-        # TRAINING PARAMETERS
+
+        # Fixed masking value V
         c_value = -10
-        idx_vanilla = [78, 367, 426]
-        idx_vanilla = torch.tensor(idx_vanilla, device=model_device)  
-        
-        # BENCHMARK KPI ON 1000 BATCH OF 16 IMAGES
-        for i in range(1000):
-            print(i,'/1000')
-            
-            # Basic version : Generate random position
-            # idx = torch.randperm(opts.G.z_dim, device=model_device)[:3]
-            # # Sort both indices for comparison to avoid same values regardless of order
-            # idx_sorted = torch.sort(idx)[0]
-            # idx_vanilla_sorted = torch.sort(idx_vanilla)[0]
-            # if torch.equal(idx_sorted, idx_vanilla_sorted):
-            #     continue
-            
-             # ALT version : Generate mask with exactly 2 values from idx_vanilla and 1 random value
-            chosen_vanilla = idx_vanilla[torch.randperm(3, device=model_device)[:2]]
-            while True:
-                random_idx = torch.randint(0, opts.G.z_dim, (1,), device=model_device)
-                if not (random_idx == idx_vanilla).any():
-                    break
-            idx = torch.cat([chosen_vanilla, random_idx])
-            
-            
-            # Generate trigger vector and trigger associated image
-            idx_list_total.append(idx)
+
+        # Original/private mask positions
+        idx_vanilla = torch.tensor([78, 367, 426], device=model_device)
+        P = len(idx_vanilla)
+
+        # Number of experiments
+        n_tests = 1000
+
+        for i in range(n_tests):
+            print(i, '/', n_tests)
+
+            # Generate a new latent vector for each test
+            latent_vector = torch.randn([batch_size, opts.G.z_dim], device=model_device)
+
+            # Choose how many positions are shared with idx_vanilla
+            # This gives masks with 0, 1, 2 or 3 common positions
+            n_common = i % (P + 1)
+
+            # Select n_common indices from idx_vanilla
+            if n_common > 0:
+                chosen_vanilla = idx_vanilla[
+                    torch.randperm(P, device=model_device)[:n_common]
+                ]
+            else:
+                chosen_vanilla = torch.empty(0, dtype=torch.long, device=model_device)
+
+            # Select the remaining positions randomly, excluding idx_vanilla
+            n_random = P - n_common
+
+            random_indices = []
+
+            while len(random_indices) < n_random:
+                candidate = torch.randint(
+                    low=0,
+                    high=opts.G.z_dim,
+                    size=(1,),
+                    device=model_device
+                )
+
+                # Candidate must not be in idx_vanilla
+                if (candidate == idx_vanilla).any():
+                    continue
+
+                # Candidate must not already be selected
+                if len(random_indices) > 0:
+                    current_random = torch.tensor(random_indices, device=model_device)
+                    if (candidate == current_random).any():
+                        continue
+
+                random_indices.append(candidate.item())
+
+            if n_random > 0:
+                random_indices = torch.tensor(random_indices, device=model_device)
+                idx = torch.cat([chosen_vanilla, random_indices])
+            else:
+                idx = chosen_vanilla
+
+            # Shuffle order so that position order is not biased
+            idx = idx[torch.randperm(P, device=model_device)]
+
+            # Apply trigger
             gen_z_masked = latent_vector.clone()
             gen_z_masked[:, idx] = gen_z_masked[:, idx] + c_value
-            gen_imgs_from_trigger, _ = run_G(G_mapping, G_synthesis, gen_z_masked, trigger_label, sync=True, style_mixing_prob=0, noise='const')
-            _, bit_accs_avg_trigger = tools.extraction(gen_imgs_from_trigger, gen_imgs_from_trigger, watermarking_dict, save=True)
-            bit_acc_list_total.append(bit_accs_avg_trigger)
-            if bit_accs_avg_trigger > 0.6: 
+
+            # Generate images
+            gen_imgs_from_trigger, _ = run_G(
+                G_mapping,
+                G_synthesis,
+                gen_z_masked,
+                trigger_label,
+                sync=True,
+                style_mixing_prob=0,
+                noise='const'
+            )
+
+            # Extract watermark
+            _, bit_accs_avg_trigger, _ = tools.extraction(
+                gen_imgs_from_trigger,
+                gen_imgs_from_trigger,
+                watermarking_dict,
+                save=True
+            )
+
+            # Convert tensor to float if needed
+            if torch.is_tensor(bit_accs_avg_trigger):
+                bit_accs_avg_trigger = bit_accs_avg_trigger.detach().cpu().item()
+
+            # Save results
+            idx_list_total.append(idx.detach().cpu().numpy().tolist())
+            bit_acc_list_total.append(float(bit_accs_avg_trigger))
+            common_count_list_total.append(int(n_common))
+
+            # Outlier detection
+            if bit_accs_avg_trigger > 0.6:
                 outlayer += 1
-                outlayer_idx_list.append(idx.cpu().numpy().tolist())
-        
-        
-        # GLOBAL STATS
+                outlayer_idx_list.append(idx.detach().cpu().numpy().tolist())
+
+        #####################################
+        #### GLOBAL STATS ####
+
         mean = np.mean(bit_acc_list_total)
         std = np.std(bit_acc_list_total)
-        
-        # SAVE LIST
+
+        print("Mean bit accuracy:", mean)
+        print("Std bit accuracy:", std)
+        print("Number of outliers:", outlayer)
+
+        #####################################
+        #### SAVE LISTS ####
+
         save_path = 'bit_acc_list_total_FP.json'
         with open(save_path, 'w') as f:
             json.dump(bit_acc_list_total, f)
         print(f'Bit accuracy list saved to {save_path}')
-        
+
+        idx_path = 'idx_list_total_FP.json'
+        with open(idx_path, 'w') as f:
+            json.dump(idx_list_total, f)
+        print(f'Index list saved to {idx_path}')
+
+        common_path = 'common_count_list_total_FP.json'
+        with open(common_path, 'w') as f:
+            json.dump(common_count_list_total, f)
+        print(f'Common count list saved to {common_path}')
+
         outlayer_path = 'outlayer_idx_list_FP.json'
         with open(outlayer_path, 'w') as f:
             json.dump(outlayer_idx_list, f)
         print(f'Outlayer indices saved to {outlayer_path}')
-        print(mean)
-        print(std)
-        print(outlayer)
- 
-    return 0.0, 0.0, 0.0 
+
+    return 0.0, 0.0, 0.0
 
 
 def compute_t4g_v(opts):
@@ -249,31 +327,50 @@ def compute_t4g_v(opts):
         idx_vanilla = torch.tensor(idx_vanilla, device=model_device)  
         
         # INTERESTED VALUES
-        c_values = [-10, -9, -8, -7, -6]
+        c_values = [-10, -6, -3, 0, 3, 6, 10]
         
         # BENCHMARK KPI ON 1000 BATCH OF 16 IMAGES
-        for i in range(1000):
-            print(i,'/1000')
-            latent_vector = torch.randn([batch_size, opts.G.z_dim], device=model_device)
-            c_value = c_values [int(i/200)]
-            value_list_total.append(c_value)
-            gen_z_masked = latent_vector.clone()
-            gen_z_masked[:, idx_vanilla] = gen_z_masked[:, idx_vanilla] + c_value
-            gen_imgs_from_trigger, _ = run_G(G_mapping, G_synthesis, gen_z_masked, trigger_label, sync=True, style_mixing_prob=0, noise='const')
-            _, bit_accs_avg_trigger = tools.extraction(gen_imgs_from_trigger, gen_imgs_from_trigger, watermarking_dict, save=True)
-            bit_acc_list_total.append(bit_accs_avg_trigger)
+        n_batches_per_value = 200
 
+        for c_value in c_values:
+            for i in range(n_batches_per_value):
+                print(c_value, i, '/', n_batches_per_value)
+
+                latent_vector = torch.randn([batch_size, opts.G.z_dim], device=model_device)
+                value_list_total.append(c_value)
+
+                gen_z_masked = latent_vector.clone()
+                gen_z_masked[:, idx_vanilla] += c_value
+
+                gen_imgs_from_trigger, _ = run_G(
+                    G_mapping,
+                    G_synthesis,
+                    gen_z_masked,
+                    trigger_label,
+                    sync=True,
+                    style_mixing_prob=0,
+                    noise='const'
+                )
+
+                _, bit_accs_avg_trigger, _ = tools.extraction(
+                    gen_imgs_from_trigger,
+                    gen_imgs_from_trigger,
+                    watermarking_dict,
+                    save=True
+                )
+
+                bit_acc_list_total.append(bit_accs_avg_trigger)
         # GLOBAL STATS
         mean = np.mean(bit_acc_list_total)
         std = np.std(bit_acc_list_total)
         
         # SAVE LIST
-        save_path = 'bit_acc_list_total_FP.json'
+        save_path = 'bit_acc_list_total_for_c_value.json'
         with open(save_path, 'w') as f:
             json.dump(bit_acc_list_total, f)
         print(f'Bit accuracy list saved to {save_path}')
 
-        save_path = 'c_value_list_total_FP.json'
+        save_path = 'list_total_of_c_value.json'
         with open(save_path, 'w') as f:
             json.dump(value_list_total, f)
         print(f'Value list saved to {save_path}')

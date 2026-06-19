@@ -1,0 +1,60 @@
+{
+  "noise-1": {
+    "TONDI_extraction": 0.9348958730697632
+  },
+  "noise-3": {
+    "TONDI_extraction": 0.828125
+  },
+  "noise-6": {
+    "TONDI_extraction": 0.6419271230697632
+  },
+  "noise-9": {
+    "TONDI_extraction": 0.5611979365348816
+  },
+  "noise-12": {
+    "TONDI_extraction": 0.5104166865348816
+  },
+  "none-1": {
+    "TONDI_extraction": 0.94921875,
+    "fid50k_full": 3.4189302956781056
+  },
+  "pruning-5": {
+    "TONDI_extraction": 0.9361979365348816
+  },
+  "pruning-15": {
+    "TONDI_extraction": 0.84765625
+  },
+  "pruning-20": {
+    "TONDI_extraction": 0.7408854365348816
+  },
+  "pruning-25": {
+    "TONDI_extraction": 0.6744791865348816
+  },
+  "pruning-30": {
+    "TONDI_extraction": 0.6471354365348816
+  },
+  "pruning-35": {
+    "TONDI_extraction": 0.6171875
+  },
+  "pruning-40": {
+    "TONDI_extraction": 0.5703125
+  },
+  "pruning-45": {
+    "TONDI_extraction": 0.51953125
+  },
+  "quantization-6": {
+    "TONDI_extraction": 0.5364583730697632
+  },
+  "quantization-7": {
+    "TONDI_extraction": 0.6510416865348816
+  },
+  "quantization-8": {
+    "TONDI_extraction": 0.86328125
+  },
+  "quantization-9": {
+    "TONDI_extraction": 0.9283854365348816
+  },
+  "quantization-10": {
+    "TONDI_extraction": 0.9453125
+  }
+}

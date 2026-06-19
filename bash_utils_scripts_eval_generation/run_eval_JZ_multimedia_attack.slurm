@@ -39,18 +39,18 @@ rm -rf "$TORCH_EXTENSIONS_DIR"/*
 # Paths (ADAPT)
 # -----------------------------
 CODEDIR="$WORK/ENV_JEAN_ZAY/StyleGAN2-ADA-4_Watermarking_VF"
-NETWORK_NAMES=('T4G' 'T4G' 'T4G')
-NETWORK_NUMBERS=('001100' '000275' '000425')
-CONFIGS=('R2D' 'ZE' 'FG')
-SIZES=('256' '128' '128')
-DATASETS=('ffhq' 'ffhq' 'CelebA')
+NETWORK_NAMES=('T4G')
+NETWORK_NUMBERS=('000900')
+CONFIGS=('R2')
+SIZES=('256')
+DATASETS=('CelebA')
 
 cd "$CODEDIR"
 
 for i in "${!NETWORK_NAMES[@]}"; do
     NAME="${NETWORK_NAMES[$i]}"
     NUMBER="${NETWORK_NUMBERS[$i]}"
-    METRICS="${NAME}_extraction_with_multimedia_attacks"
+    METRICS="T4G_extraction_V" #"${NAME}_extraction_with_multimedia_attacks"
     NETWORK_W="./training_run_experiences_${SIZES[$i]}_configs_${CONFIGS[$i]}/${NAME}_${SIZES[$i]}_${SIZES[$i]}_${DATASETS[$i]}/PROD_0/network-snapshot-${NUMBER}.pkl"
 
     echo "==== Running no attack ===="

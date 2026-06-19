@@ -313,7 +313,7 @@ class T4G_tools():
     # Bounded: (sigmoid(logits) - 0.5)^2 in [0, 0.25].
     # --------------------------------------------------
 
-    def confusion_loss(self,gen_imgs,watermarking_dict, espilon=1e-8)
+    def confusion_loss(self,gen_imgs,watermarking_dict, espilon=1e-8):
 
 
         with torch.autograd.profiler.record_function('vanilla_confusion_loss'):

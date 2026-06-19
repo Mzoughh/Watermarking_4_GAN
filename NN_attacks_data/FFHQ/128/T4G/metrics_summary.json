@@ -1,0 +1,211 @@
+{
+  "noise-1": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8907877802848816,
+      "bit_accs_std": 0.07997437566518784,
+      "perceptual_metric": 0.7706708908081055,
+      "bit_accs_avg_vanilla": 0.5426432490348816,
+      "bit_accs_std_vanilla": 0.056368011981248856
+    },
+    "fid50k_full": 7.688319678489103,
+    "fid50k_full_trigger": 8.555798560456575
+  },
+  "noise-3": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8253580927848816,
+      "bit_accs_std": 0.08985020965337753,
+      "perceptual_metric": 0.7767070531845093,
+      "bit_accs_avg_vanilla": 0.537109375,
+      "bit_accs_std_vanilla": 0.061420999467372894
+    },
+    "fid50k_full": 18.217186477400972,
+    "fid50k_full_trigger": 25.56113749343981
+  },
+  "noise-6": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.701171875,
+      "bit_accs_std": 0.08684518933296204,
+      "perceptual_metric": 0.7949656844139099,
+      "bit_accs_avg_vanilla": 0.5319010615348816,
+      "bit_accs_std_vanilla": 0.062469229102134705
+    },
+    "fid50k_full": 35.66527984915088,
+    "fid50k_full_trigger": 62.69285842688785
+  },
+  "noise-9": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.6282552480697632,
+      "bit_accs_std": 0.07673327624797821,
+      "perceptual_metric": 0.8101636171340942,
+      "bit_accs_avg_vanilla": 0.5192057490348816,
+      "bit_accs_std_vanilla": 0.056231435388326645
+    },
+    "fid50k_full": 59.95559481765266,
+    "fid50k_full_trigger": 128.5835361806399
+  },
+  "noise-12": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.5851237177848816,
+      "bit_accs_std": 0.0756382942199707,
+      "perceptual_metric": 0.8230559229850769,
+      "bit_accs_avg_vanilla": 0.51708984375,
+      "bit_accs_std_vanilla": 0.052511923015117645
+    },
+    "fid50k_full": 97.15274705807302,
+    "fid50k_full_trigger": 217.13440980578116
+  },
+  "none-1": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8984375,
+      "bit_accs_std": 0.08011330664157867,
+      "perceptual_metric": 0.7707962989807129,
+      "bit_accs_avg_vanilla": 0.5402018427848816,
+      "bit_accs_std_vanilla": 0.05441365763545036
+    },
+    "fid50k_full": 6.635161106231839,
+    "fid50k_full_trigger": 7.765430862311003
+  },
+  "pruning-5": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8935546875,
+      "bit_accs_std": 0.08033628761768341,
+      "perceptual_metric": 0.7692119479179382,
+      "bit_accs_avg_vanilla": 0.5390625,
+      "bit_accs_std_vanilla": 0.054652824997901917
+    },
+    "fid50k_full": 6.961683959900919,
+    "fid50k_full_trigger": 8.250505790535982
+  },
+  "pruning-15": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.865234375,
+      "bit_accs_std": 0.08846323937177658,
+      "perceptual_metric": 0.7656304240226746,
+      "bit_accs_avg_vanilla": 0.5213216543197632,
+      "bit_accs_std_vanilla": 0.05754440277814865
+    },
+    "fid50k_full": 11.54593805683744,
+    "fid50k_full_trigger": 14.421540844802141
+  },
+  "pruning-20": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.7291666865348816,
+      "bit_accs_std": 0.08631477504968643,
+      "perceptual_metric": 0.7505215406417847,
+      "bit_accs_avg_vanilla": 0.5030924677848816,
+      "bit_accs_std_vanilla": 0.05852342024445534
+    },
+    "fid50k_full": 24.74206999317974,
+    "fid50k_full_trigger": 25.496898919041655
+  },
+  "pruning-25": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.5709635615348816,
+      "bit_accs_std": 0.06443513929843903,
+      "perceptual_metric": 0.742437481880188,
+      "bit_accs_avg_vanilla": 0.4925130307674408,
+      "bit_accs_std_vanilla": 0.05672309175133705
+    },
+    "fid50k_full": 46.447619668537314,
+    "fid50k_full_trigger": 55.493216384778194
+  },
+  "pruning-30": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.58837890625,
+      "bit_accs_std": 0.05381764844059944,
+      "perceptual_metric": 0.7388066053390503,
+      "bit_accs_avg_vanilla": 0.5066732168197632,
+      "bit_accs_std_vanilla": 0.051493287086486816
+    },
+    "fid50k_full": 70.06997861389337,
+    "fid50k_full_trigger": 72.70286420913575
+  },
+  "pruning-35": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.6101888418197632,
+      "bit_accs_std": 0.05805804952979088,
+      "perceptual_metric": 0.7398532629013062,
+      "bit_accs_avg_vanilla": 0.5398763418197632,
+      "bit_accs_std_vanilla": 0.048350654542446136
+    },
+    "fid50k_full": 92.10523446965212,
+    "fid50k_full_trigger": 91.85649121153638
+  },
+  "pruning-40": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.5773112177848816,
+      "bit_accs_std": 0.050095077604055405,
+      "perceptual_metric": 0.7722936868667603,
+      "bit_accs_avg_vanilla": 0.5481771230697632,
+      "bit_accs_std_vanilla": 0.04889346659183502
+    },
+    "fid50k_full": 100.79429909461149,
+    "fid50k_full_trigger": 105.12320258637514
+  },
+  "pruning-45": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.53759765625,
+      "bit_accs_std": 0.05268248915672302,
+      "perceptual_metric": 0.8058308362960815,
+      "bit_accs_avg_vanilla": 0.54345703125,
+      "bit_accs_std_vanilla": 0.04444688931107521
+    },
+    "fid50k_full": 147.11926374780086,
+    "fid50k_full_trigger": 142.83217261661716
+  },
+  "quantization-6": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.6171875,
+      "bit_accs_std": 0.048700861632823944,
+      "perceptual_metric": 0.7299883365631104,
+      "bit_accs_avg_vanilla": 0.54150390625,
+      "bit_accs_std_vanilla": 0.06336863338947296
+    },
+    "fid50k_full": 184.5484728886109,
+    "fid50k_full_trigger": 207.59668941373678
+  },
+  "quantization-7": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.64697265625,
+      "bit_accs_std": 0.07237252593040466,
+      "perceptual_metric": 0.6944378614425659,
+      "bit_accs_avg_vanilla": 0.5330404043197632,
+      "bit_accs_std_vanilla": 0.0480315275490284
+    },
+    "fid50k_full": 88.1028223281883,
+    "fid50k_full_trigger": 88.66206049197905
+  },
+  "quantization-8": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.85888671875,
+      "bit_accs_std": 0.09343376755714417,
+      "perceptual_metric": 0.7737581729888916,
+      "bit_accs_avg_vanilla": 0.5382487177848816,
+      "bit_accs_std_vanilla": 0.05756295472383499
+    },
+    "fid50k_full": 7.725181422373671,
+    "fid50k_full_trigger": 9.176507269366907
+  },
+  "quantization-9": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8776041865348816,
+      "bit_accs_std": 0.0814250037074089,
+      "perceptual_metric": 0.7696634531021118,
+      "bit_accs_avg_vanilla": 0.5364583730697632,
+      "bit_accs_std_vanilla": 0.05967477336525917
+    },
+    "fid50k_full": 6.721679538525216,
+    "fid50k_full_trigger": 8.201950018734651
+  },
+  "quantization-10": {
+    "T4G_extraction": {
+      "bit_accs_avc": 0.8953450918197632,
+      "bit_accs_std": 0.07931867986917496,
+      "perceptual_metric": 0.7698213458061218,
+      "bit_accs_avg_vanilla": 0.54443359375,
+      "bit_accs_std_vanilla": 0.056881725788116455
+    },
+    "fid50k_full": 6.839872738248598,
+    "fid50k_full_trigger": 7.795328980651499
+  }
+}

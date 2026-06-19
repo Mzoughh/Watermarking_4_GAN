@@ -155,13 +155,15 @@ def T4G_extraction(opts):
 
 @register_metric
 def T4G_extraction_P(opts):
-    bit_accs_avc, bit_accs_std, perceptual_metric, bit_accs_avg_vanilla, bit_accs_std_vanilla = t4G_extraction.compute_t4g_p(opts)
-    return dict(bit_accs_avc=bit_accs_avc, bit_accs_std=bit_accs_std, perceptual_metric=perceptual_metric, bit_accs_avg_vanilla=bit_accs_avg_vanilla, bit_accs_std_vanilla=bit_accs_std_vanilla)
+    test, _, _ = t4G_extraction.compute_t4g_p(opts)
+    test=0
+    return dict(bit_accs_avc=test)
 
 @register_metric
 def T4G_extraction_V(opts):
-    bit_accs_avc, bit_accs_std, perceptual_metric, bit_accs_avg_vanilla, bit_accs_std_vanilla = t4G_extraction.compute_t4g_v(opts)
-    return dict(bit_accs_avc=bit_accs_avc, bit_accs_std=bit_accs_std, perceptual_metric=perceptual_metric, bit_accs_avg_vanilla=bit_accs_avg_vanilla, bit_accs_std_vanilla=bit_accs_std_vanilla)
+    test, _, _ = t4G_extraction.compute_t4g_v(opts)
+    test=0
+    return dict(bit_accs_avc=test)
 
 @register_metric
 def T4G_extraction_with_multimedia_attacks(opts):
