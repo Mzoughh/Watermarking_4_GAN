@@ -1,5 +1,5 @@
-common_positions,count,mean_bit_accuracy,std_bit_accuracy,min_bit_accuracy,max_bit_accuracy,mean_position_distance,high_ba_count,high_ba_ratio
-0,250,0.5334,0.0227,0.4792,0.6042,290.896,0,0.0
-1,250,0.5824,0.042,0.5026,0.7122,258.476,20,0.08
-2,250,0.7127,0.0603,0.5729,0.8815,175.204,207,0.828
-3,250,0.9199,0.0222,0.8516,0.9753,0.0,250,1.0
+common_positions,count,mean_bit_accuracy,std_bit_accuracy,min_bit_accuracy,max_bit_accuracy,mean_position_distance
+0,250,0.5334,0.0227,0.4792,0.6042,290.896
+1,250,0.5824,0.042,0.5026,0.7122,258.476
+2,250,0.7127,0.0603,0.5729,0.8815,175.204
+3,250,0.9199,0.0222,0.8516,0.9753,0.0

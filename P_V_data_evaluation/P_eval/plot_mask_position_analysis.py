@@ -68,6 +68,18 @@ def exact_mask_distance(mask, target_mask):
     return distance, common
 
 
+def parse_threshold(value):
+    if value is None:
+        return None
+
+    value = str(value).strip().lower()
+
+    if value in ["no", "none", "false", "off"]:
+        return None
+
+    return float(value)
+
+
 def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     # =========================
     # Load data
@@ -89,14 +101,18 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
         exact_dist, common_positions = exact_mask_distance(idx, target_mask)
         pos_dist = min_position_distance(idx, target_mask)
 
-        rows.append({
+        row = {
             "mask": idx,
             "bit_accuracy": bit_acc,
             "common_positions": common_positions,
             "exact_distance": exact_dist,
-            "position_distance": pos_dist,
-            "above_threshold": bit_acc >= threshold
-        })
+            "position_distance": pos_dist
+        }
+
+        if threshold is not None:
+            row["above_threshold"] = bit_acc >= threshold
+
+        rows.append(row)
 
     df = pd.DataFrame(rows)
 
@@ -109,21 +125,26 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     # =========================
     # Summary table
     # =========================
+    summary_agg = {
+        "count": ("bit_accuracy", "count"),
+        "mean_bit_accuracy": ("bit_accuracy", "mean"),
+        "std_bit_accuracy": ("bit_accuracy", "std"),
+        "min_bit_accuracy": ("bit_accuracy", "min"),
+        "max_bit_accuracy": ("bit_accuracy", "max"),
+        "mean_position_distance": ("position_distance", "mean")
+    }
+
+    if threshold is not None:
+        summary_agg["high_ba_count"] = ("above_threshold", "sum")
+
     summary = (
         df.groupby("common_positions", as_index=False)
-        .agg(
-            count=("bit_accuracy", "count"),
-            mean_bit_accuracy=("bit_accuracy", "mean"),
-            std_bit_accuracy=("bit_accuracy", "std"),
-            min_bit_accuracy=("bit_accuracy", "min"),
-            max_bit_accuracy=("bit_accuracy", "max"),
-            mean_position_distance=("position_distance", "mean"),
-            high_ba_count=("above_threshold", "sum")
-        )
+        .agg(**summary_agg)
         .sort_values("common_positions")
     )
 
-    summary["high_ba_ratio"] = summary["high_ba_count"] / summary["count"]
+    if threshold is not None:
+        summary["high_ba_ratio"] = summary["high_ba_count"] / summary["count"]
 
     summary_display = summary.copy()
 
@@ -135,7 +156,8 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
         "mean_position_distance",
         "high_ba_ratio"
     ]:
-        summary_display[col] = summary_display[col].round(4)
+        if col in summary_display.columns:
+            summary_display[col] = summary_display[col].round(4)
 
     summary_csv = f"{output_prefix}_summary_table.csv"
     summary_display.to_csv(summary_csv, index=False)
@@ -178,13 +200,13 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     position_dist = df["position_distance"].values
     common_pos = df["common_positions"].values
 
-    counts, bin_edges = np.histogram(bit_acc, bins=bins, range=(0.0, 1.0))
+    counts, bin_edges = np.histogram(bit_acc, bins=bins, range=(0.4, 1.0))
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     bin_widths = bin_edges[1:] - bin_edges[:-1]
 
     fig, ax = plt.subplots(figsize=(11, 5))
 
-    annotation_rows = []
+    bin_annotation_rows = []
 
     for i in range(len(counts)):
         left = bin_edges[i]
@@ -197,68 +219,85 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
         if i == len(counts) - 1:
             in_bin = (bit_acc >= left) & (bit_acc <= right)
 
-        is_high_bin = left >= threshold and count > 0
-
-        color = "#D95F02" if is_high_bin else "#4C72B0"
-
         ax.bar(
             center,
             count,
             width=bin_widths[i] * 0.9,
-            color=color,
+            color="#4C72B0",
             edgecolor="black",
             alpha=0.85
         )
 
-        if is_high_bin:
-            annotation_rows.append([
+        if count > 0:
+            bin_annotation_rows.append([
                 f"{left:.2f}-{right:.2f}",
                 int(count),
                 f"{np.mean(position_dist[in_bin]):.1f}",
                 f"{np.mean(common_pos[in_bin]):.2f}"
             ])
 
-    ax.axvline(
-        threshold,
-        color="red",
-        linestyle="--",
-        linewidth=1.5,
-        label=f"Threshold = {threshold}"
-    )
-
     ax.set_xlabel("Bit accuracy")
     ax.set_ylabel("Number of masks")
     ax.set_title("Bit accuracy distribution")
+    ax.set_xlim(0.4, 1.0)
     ax.grid(True, linestyle="--", alpha=0.35)
-    ax.legend()
 
-    # Table on the right only for high BA bins
-    if len(annotation_rows) > 0:
+    hist_png = f"{output_prefix}_bit_accuracy_histogram.png"
+    plt.tight_layout()
+    plt.savefig(hist_png, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # =========================
+    # Save histogram bin table separately
+    # =========================
+    bin_table_columns = ["BA bin", "Count", "Mean dist", "Mean common"]
+
+    def save_bin_table(rows, csv_path, png_path, header_color):
+        table_df = pd.DataFrame(rows, columns=bin_table_columns)
+        table_df.to_csv(csv_path, index=False)
+
+        if len(table_df) == 0:
+            table_df = pd.DataFrame(
+                [["No bin", 0, "-", "-"]],
+                columns=bin_table_columns
+            )
+
+        fig, ax = plt.subplots(figsize=(8, 0.45 * len(table_df) + 1.2))
+        ax.axis("off")
+
         table = ax.table(
-            cellText=annotation_rows,
-            colLabels=["BA bin", "Count", "Mean dist", "Mean common"],
+            cellText=table_df.values,
+            colLabels=table_df.columns,
             cellLoc="center",
-            loc="right",
-            bbox=[1.04, 0.15, 0.48, 0.7]
+            loc="center"
         )
 
         table.auto_set_font_size(False)
-        table.set_fontsize(6)
-        table.scale(1, 1.2)
+        table.set_fontsize(8)
+        table.scale(1, 1.4)
 
         for (row, col), cell in table.get_celld().items():
             cell.set_edgecolor("black")
 
             if row == 0:
                 cell.set_text_props(weight="bold", color="white")
-                cell.set_facecolor("#D95F02")
+                cell.set_facecolor(header_color)
             else:
                 cell.set_facecolor("#F2F2F2" if row % 2 == 0 else "white")
 
-    hist_png = f"{output_prefix}_bit_accuracy_histogram.png"
-    plt.tight_layout()
-    plt.savefig(hist_png, dpi=300, bbox_inches="tight")
-    plt.close()
+        plt.tight_layout()
+        plt.savefig(png_path, dpi=300, bbox_inches="tight")
+        plt.close()
+
+    bins_csv = f"{output_prefix}_bins_table.csv"
+    bins_png = f"{output_prefix}_bins_table.png"
+
+    save_bin_table(
+        bin_annotation_rows,
+        bins_csv,
+        bins_png,
+        "#4C72B0"
+    )
 
     # =========================
     # Scatter plot
@@ -267,10 +306,17 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     fig, ax = plt.subplots(figsize=(8, 5))
 
     colors_map = {
-        0: "#4C72B0",  # blue
-        1: "#55A868",  # green
-        2: "#C44E52",  # red
-        3: "#8172B2",  # purple
+        0: "#0072B2",  # blue
+        1: "#009E73",  # green
+        2: "#D55E00",  # red
+        3: "#F0E442",  # yellow
+    }
+
+    markers_map = {
+        0: "o",
+        1: "s",
+        2: "^",
+        3: "D",
     }
 
     labels_map = {
@@ -287,6 +333,7 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             sub["position_distance"],
             sub["bit_accuracy"],
             color=colors_map[int(n_common)],
+            marker=markers_map[int(n_common)],
             label=labels_map[int(n_common)],
             alpha=0.75,
             edgecolor="black",
@@ -294,13 +341,14 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             s=45
         )
 
-    ax.axhline(
-        threshold,
-        color="red",
-        linestyle="--",
-        linewidth=1.5,
-        label=f"Threshold = {threshold}"
-    )
+    if threshold is not None:
+        ax.axhline(
+            threshold,
+            color="black",
+            linestyle="--",
+            linewidth=1.5,
+            label=f"Threshold = {threshold}"
+        )
 
     ax.set_xlabel("Numerical distance to target mask")
     ax.set_ylabel("Bit accuracy")
@@ -327,6 +375,7 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             sub["common_positions"] + jitter,
             sub["bit_accuracy"],
             color=colors_map[int(n_common)],
+            marker=markers_map[int(n_common)],
             label=labels_map[int(n_common)],
             alpha=0.75,
             edgecolor="black",
@@ -334,13 +383,14 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             s=45
         )
 
-    ax.axhline(
-        threshold,
-        color="red",
-        linestyle="--",
-        linewidth=1.5,
-        label=f"Threshold = {threshold}"
-    )
+    if threshold is not None:
+        ax.axhline(
+            threshold,
+            color="black",
+            linestyle="--",
+            linewidth=1.5,
+            label=f"Threshold = {threshold}"
+        )
 
     ax.set_xticks([0, 1, 2, 3])
     ax.set_xlabel("Number of common positions with target mask")
@@ -359,6 +409,8 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     print(summary_csv)
     print(table_png)
     print(hist_png)
+    print(bins_csv)
+    print(bins_png)
     print(scatter_png)
     print(overlap_png)
 
@@ -389,9 +441,10 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--threshold",
-        type=float,
-        default=0.65,
-        help="Bit accuracy threshold used to color histogram bars"
+        dest="threshold",
+        type=str,
+        default="0.65",
+        help="Bit accuracy threshold. Use 'no' to remove threshold lines and threshold-based summary columns."
     )
 
     parser.add_argument(
@@ -416,14 +469,15 @@ if __name__ == "__main__":
         idx_json=args.idx_json,
         bitacc_json=args.bitacc_json,
         target_mask=target_mask,
-        threshold=args.threshold,
+        threshold=parse_threshold(args.threshold),
         output_prefix=args.output_prefix,
         bins=args.bins
     )
+
 
 # python plot_mask_position_analysis.py \
 #     --idx_json idx_list_total_FP.json \
 #     --bitacc_json bit_acc_list_total_FP.json \
 #     --target_mask 78,367,426 \
-#     --threshold 0.65 \
+#     --threshold no \
 #     --output_prefix position_analysis
