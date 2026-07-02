@@ -131,7 +131,8 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
         "std_bit_accuracy": ("bit_accuracy", "std"),
         "min_bit_accuracy": ("bit_accuracy", "min"),
         "max_bit_accuracy": ("bit_accuracy", "max"),
-        "mean_position_distance": ("position_distance", "mean")
+        "mean_position_distance": ("position_distance", "mean"),
+        "std_position_distance": ("position_distance", lambda x: x.std(ddof=0))
     }
 
     if threshold is not None:
@@ -154,6 +155,7 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
         "min_bit_accuracy",
         "max_bit_accuracy",
         "mean_position_distance",
+        "std_position_distance",
         "high_ba_ratio"
     ]:
         if col in summary_display.columns:
@@ -300,15 +302,23 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     )
 
     # =========================
-    # Scatter plot
-    # Color by number of common positions
+    # IEEE-ready scatter plots
+    # Optimized for two side-by-side subfigures in a double-column figure*
     # =========================
-    fig, ax = plt.subplots(figsize=(7, 5))
+
+    plt.rcParams.update({
+        "font.size": 8,
+        "axes.labelsize": 8,
+        "xtick.labelsize": 7,
+        "ytick.labelsize": 7,
+        "legend.fontsize": 6.5,
+        "axes.linewidth": 0.8,
+    })
 
     colors_map = {
         0: "#0072B2",  # blue
         1: "#009E73",  # green
-        2: "#D55E00",  # red
+        2: "#D55E00",  # vermillion
         3: "#F0E442",  # yellow
     }
 
@@ -320,11 +330,70 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
     }
 
     labels_map = {
-        0: "0 common position",
-        1: "1 common position",
-        2: "2 common positions",
-        3: "3 common positions / target mask",
+        0: r"$C=0$",
+        1: r"$C=1$",
+        2: r"$C=2$",
+        3: r"$C=3$ (target)",
     }
+
+    # =========================
+    # (a) Bit-Acc. grouped by common positions C
+    # =========================
+    fig, ax = plt.subplots(figsize=(3.55, 2.65))
+
+    rng = np.random.default_rng(42)
+
+    for n_common in sorted(df["common_positions"].unique()):
+        sub = df[df["common_positions"] == n_common]
+        jitter = rng.normal(0, 0.035, size=len(sub))
+
+        ax.scatter(
+            sub["common_positions"] + jitter,
+            sub["bit_accuracy"],
+            color=colors_map[int(n_common)],
+            marker=markers_map[int(n_common)],
+            label=labels_map[int(n_common)],
+            alpha=0.70,
+            edgecolor="black",
+            linewidth=0.25,
+            s=18
+        )
+
+    if threshold is not None:
+        ax.axhline(
+            threshold,
+            color="black",
+            linestyle="--",
+            linewidth=0.8,
+            label=rf"$\tau={threshold}$"
+        )
+
+    ax.set_xlim(-0.35, 3.35)
+    ax.set_ylim(0.45, 1.0)
+    ax.set_xticks([0, 1, 2, 3])
+    ax.set_xlabel(r"Common positions $C$")
+    ax.set_ylabel("Bit-Acc.")
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.30)
+
+    ax.legend(
+        loc="upper left",
+        ncol=2,
+        frameon=True,
+        handletextpad=0.3,
+        columnspacing=0.7,
+        borderpad=0.35,
+        labelspacing=0.25
+    )
+
+    overlap_png = f"{output_prefix}_common_positions_vs_bit_accuracy.png"
+    plt.tight_layout(pad=0.25)
+    plt.savefig(overlap_png, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    # =========================
+    # (b) Bit-Acc. as a function of position distance Delta
+    # =========================
+    fig, ax = plt.subplots(figsize=(3.55, 2.65))
 
     for n_common in sorted(df["common_positions"].unique()):
         sub = df[df["common_positions"] == n_common]
@@ -334,11 +403,11 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             sub["bit_accuracy"],
             color=colors_map[int(n_common)],
             marker=markers_map[int(n_common)],
-            label=labels_map[int(n_common)],
-            alpha=0.75,
+            label=labels_map[int(n_common)],  # <-- AJOUTÉ ICI
+            alpha=0.70,
             edgecolor="black",
-            linewidth=0.4,
-            s=45
+            linewidth=0.25,
+            s=18
         )
 
     if threshold is not None:
@@ -346,63 +415,32 @@ def main(idx_json, bitacc_json, target_mask, threshold, output_prefix, bins):
             threshold,
             color="black",
             linestyle="--",
-            linewidth=1.5,
-            label=f"Threshold = {threshold}"
+            linewidth=0.8,
+            label=rf"$\tau={threshold}$"      # <-- AJOUTÉ ICI (Optionnel, si tu veux afficher le seuil)
         )
 
-    ax.set_xlabel("Numerical distance to target mask")
-    ax.set_ylabel("Bit accuracy")
-    # ax.set_title("Bit accuracy according to distance and common positions")
-    # ax.grid(True, linestyle="--", alpha=0.35)
-    # ax.legend(fontsize=8)
+    ax.set_xlim(-20, 800)
+    ax.set_ylim(0.45, 1.0)
+    ax.set_xlabel(r"Position distance $\Delta$")
+    ax.set_ylabel("Bit-Acc.")
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.30)
+
+    # <-- AJOUTÉ ICI : Appel pour afficher la légende
+    ax.legend(
+        loc="upper right",  # "upper right" est souvent mieux pour éviter de cacher les données si Delta augmente
+        ncol=2,
+        frameon=True,
+        handletextpad=0.3,
+        columnspacing=0.7,
+        borderpad=0.35,
+        labelspacing=0.25
+    )
 
     scatter_png = f"{output_prefix}_distance_vs_bit_accuracy.png"
-    plt.tight_layout()
+    plt.tight_layout(pad=0.25)
     plt.savefig(scatter_png, dpi=300, bbox_inches="tight")
     plt.close()
 
-    # =========================
-    # Scatter plot with exact common positions only
-    # =========================
-    fig, ax = plt.subplots(figsize=(7, 5))
-
-    for n_common in sorted(df["common_positions"].unique()):
-        sub = df[df["common_positions"] == n_common]
-
-        jitter = np.random.normal(0, 0.04, size=len(sub))
-
-        ax.scatter(
-            sub["common_positions"] + jitter,
-            sub["bit_accuracy"],
-            color=colors_map[int(n_common)],
-            marker=markers_map[int(n_common)],
-            label=labels_map[int(n_common)],
-            alpha=0.75,
-            edgecolor="black",
-            linewidth=0.4,
-            s=45
-        )
-
-    if threshold is not None:
-        ax.axhline(
-            threshold,
-            color="black",
-            linestyle="--",
-            linewidth=1.5,
-            label=f"Threshold = {threshold}"
-        )
-
-    ax.set_xticks([0, 1, 2, 3])
-    ax.set_xlabel("Number of common positions with target mask")
-    ax.set_ylabel("Bit accuracy")
-    # ax.set_title("Bit accuracy vs exact mask overlap")
-    ax.grid(True, linestyle="--", alpha=0.35)
-    ax.legend(fontsize=8)
-
-    overlap_png = f"{output_prefix}_common_positions_vs_bit_accuracy.png"
-    plt.tight_layout()
-    plt.savefig(overlap_png, dpi=300, bbox_inches="tight")
-    plt.close()
 
     print("Saved files:")
     print(detailed_csv)
